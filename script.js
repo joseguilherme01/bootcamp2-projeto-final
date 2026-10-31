@@ -3,6 +3,18 @@
 // ======================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Funções puras (validação, formatação, cálculo) ficam em utils.js
+// para poderem ser testadas automaticamente no GitHub Actions
+import {
+  limparCep,
+  validarCep,
+  formatarCep,
+  normalizar,
+  distanciaKm,
+  escaparHtml,
+  montarFavorito,
+} from "./utils.js";
+
 // 👇 COLE AQUI a sua URL e a sua chave publishable (anon) do Supabase
 const SUPABASE_URL = "https://uuljzvgfivabvoedrcgx.supabase.co";
 const SUPABASE_KEY = "sb_publishable_WUJgw_4GbXq0UHDxMeo5dg_7pyFs61Q";
@@ -24,26 +36,6 @@ let marcador = null;
 
 // Guarda o último endereço encontrado, para o botão "Favoritar" saber o que salvar
 let enderecoAtual = null;
-
-function limparCep(valor) {
-  return valor.replace(/\D/g, "");
-}
-
-function formatarCep(cepLimpo) {
-  return cepLimpo.replace(/^(\d{5})(\d{3})$/, "$1-$2");
-}
-
-function validarCep(cep) {
-  return /^[0-9]{8}$/.test(cep);
-}
-
-function normalizar(txt) {
-  return (txt || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
-}
 
 function renderizarErro(msg) {
   enderecoAtual = null;
@@ -100,18 +92,6 @@ async function nominatimSearch(query, limit = 10) {
   const resp = await fetch(url, { headers: { Accept: "application/json" } });
   if (!resp.ok) throw new Error("Erro ao consultar Nominatim");
   return resp.json();
-}
-
-function distanciaKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
 }
 
 function pontuar(item, alvo) {
@@ -303,15 +283,7 @@ async function buscarCep() {
     }
 
     // Guarda os dados no formato das colunas da tabela "favoritos_cep"
-    enderecoAtual = {
-      cep: endereco.cep,
-      logradouro: endereco.logradouro || null,
-      bairro: endereco.bairro || null,
-      cidade: endereco.localidade,
-      uf: endereco.uf,
-      latitude: coords.lat,
-      longitude: coords.lon,
-    };
+    enderecoAtual = montarFavorito(endereco, coords);
 
     renderizarResultado(endereco, coords);
     atualizarMapa(coords, endereco);
@@ -400,17 +372,6 @@ async function listarFavoritos() {
     `,
     )
     .join("");
-}
-
-// Evita que um apelido com caracteres como < ou > quebre a página
-// (o apelido é digitado pelo usuário, então precisa ser tratado)
-function escaparHtml(texto) {
-  return String(texto)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
 
 // UPDATE (versão 1.1) - dá ou altera o apelido de um favorito

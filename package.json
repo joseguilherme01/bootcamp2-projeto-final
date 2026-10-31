@@ -1,0 +1,13 @@
+{
+  "name": "bootcamp2-projeto-final",
+  "version": "1.0.0",
+  "description": "Consulta de CEP com mapa e favoritos salvos no Supabase",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}
