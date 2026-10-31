@@ -1,0 +1,14 @@
+# Historico do Git (pode ser maior que o proprio projeto)
+.git
+.gitignore
+
+# Documentacao e prints: vao para o GitHub, mas nao precisam estar dentro da imagem
+README.md
+prints/
+
+# Arquivos do proprio Docker
+Dockerfile
+.dockerignore
+
+# Configuracoes do editor
+.vscode/
