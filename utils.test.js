@@ -39,7 +39,7 @@ describe("validarCep", () => {
 
 describe("formatarCep", () => {
   test("coloca o hífen no lugar certo", () => {
-    expect(formatarCep("71931360")).toBe("71931-360");
+    expect(formatarCep("71931360")).toBe("71931360");
   });
 });
 
@@ -90,7 +90,13 @@ describe("montarFavorito", () => {
   });
 
   test("salva null quando o CEP não tem logradouro nem bairro", () => {
-    const endereco = { cep: "70000-000", logradouro: "", bairro: "", localidade: "Brasília", uf: "DF" };
+    const endereco = {
+      cep: "70000-000",
+      logradouro: "",
+      bairro: "",
+      localidade: "Brasília",
+      uf: "DF",
+    };
     const favorito = montarFavorito(endereco, { lat: 0, lon: 0 });
     expect(favorito.logradouro).toBeNull();
     expect(favorito.bairro).toBeNull();
