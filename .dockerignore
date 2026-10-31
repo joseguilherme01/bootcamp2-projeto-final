@@ -12,3 +12,10 @@ Dockerfile
 
 # Configuracoes do editor
 .vscode/
+
+# Dependencias e testes: so servem para o GitHub Actions, nao para o site
+node_modules/
+package.json
+package-lock.json
+*.test.js
+.github/
